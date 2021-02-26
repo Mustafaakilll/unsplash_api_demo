@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
+import 'package:unsplash_api_demo/utils/styles/style.dart';
 
 import '../models/image_model.dart';
 import '../utils/constants.dart';
@@ -26,44 +27,6 @@ class ImageView extends StatelessWidget {
     );
   }
 
-  Widget _buildSliverPadding(ImageViewModel viewModel, BuildContext context) {
-    return SliverPadding(
-      padding: EdgeInsets.all(12),
-      sliver: viewModel.isLoading
-          ? _loadingWidgets()
-          : _buildsliverStaggeredGrid(viewModel, context),
-    );
-  }
-
-  Widget _buildsliverStaggeredGrid(
-      ImageViewModel viewModel, BuildContext context) {
-    return viewModel.isSearch
-        ? SliverStaggeredGrid.countBuilder(
-            crossAxisCount: 2,
-            staggeredTileBuilder: (index) =>
-                staggeredTileBuilder(viewModel.filteredImages[index], context),
-            itemBuilder: (context, index) =>
-                buildImageItemBuilder(viewModel.filteredImages[index]),
-            itemCount: viewModel.filteredImages.length,
-          )
-        : SliverStaggeredGrid.countBuilder(
-            crossAxisCount: 2,
-            staggeredTileBuilder: (index) =>
-                staggeredTileBuilder(viewModel.randomImages[index], context),
-            itemBuilder: (context, index) =>
-                buildImageItemBuilder(viewModel.randomImages[index]),
-            itemCount: viewModel.randomImages.length,
-          );
-  }
-
-  Widget _loadingWidgets() {
-    return SliverToBoxAdapter(
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
   Widget _sliverAppBar(context, ImageViewModel viewModel) => SliverAppBar(
         snap: true,
         floating: true,
@@ -71,58 +34,93 @@ class ImageView extends StatelessWidget {
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         centerTitle: true,
         title: viewModel.isSearch
-            ? TextFormField(
-                onFieldSubmitted: (value) => viewModel.searchImages(value),
-                controller: _searchController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Arama',
-                  hintText: 'İngilizce yazınız!(Örn: Bicycle)',
-                  border:
-                      UnderlineInputBorder(borderSide: BorderSide(width: 16)),
-                ),
-              )
-            : Text(
-                AppConstants.TRENDS_TEXT,
-                style: Theme.of(context).appBarTheme.titleTextStyle,
-              ),
+            ? buildsearchTextFormField(viewModel)
+            : buildTextField(context),
         actions: [
           viewModel.isSearch
               ? Row(
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: () {
-                        viewModel.searchImages(_searchController.text);
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: () {
-                        viewModel.changeSearchState();
-                        viewModel.filteredImages.clear();
-                      },
-                    ),
+                    buildSearchIconButton(viewModel),
+                    buildCancelIconButton(viewModel),
                   ],
                 )
-              : IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    viewModel.changeSearchState();
-                  },
-                )
+              : buildGoSearchIconButton(viewModel)
         ],
       );
 
-  Widget buildImageItemBuilder(ImageModel image) {
-    return Card(
-      child: Image.network(image.urls.small),
-    );
-  }
+  Widget buildsearchTextFormField(ImageViewModel viewModel) => TextFormField(
+        onFieldSubmitted: (value) => viewModel.searchImages(value),
+        controller: _searchController,
+        autofocus: true,
+        decoration:
+            buildInputDecoration('Arama', 'İngilizce yazınız!(Örn: Bicycle)'),
+      );
+
+  Widget buildTextField(context) => Text(
+        AppConstants.TRENDS_TEXT,
+        style: Theme.of(context).appBarTheme.titleTextStyle,
+      );
+
+  Widget buildSearchIconButton(ImageViewModel viewModel) => IconButton(
+        icon: Icon(Icons.search),
+        onPressed: () {
+          viewModel.searchImages(_searchController.text);
+        },
+      );
+
+  Widget buildCancelIconButton(ImageViewModel viewModel) => IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          viewModel.changeSearchState();
+          viewModel.filteredImages.clear();
+        },
+      );
+
+  Widget buildGoSearchIconButton(ImageViewModel viewModel) => IconButton(
+        icon: Icon(Icons.search),
+        onPressed: () {
+          viewModel.changeSearchState();
+        },
+      );
+
+  Widget _buildSliverPadding(ImageViewModel viewModel, BuildContext context) =>
+      SliverPadding(
+        padding: EdgeInsets.all(12),
+        sliver: viewModel.isLoading
+            ? _loadingWidget()
+            : _buildsliverStaggeredGrid(viewModel, context),
+      );
+
+  Widget _loadingWidget() => SliverToBoxAdapter(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+  Widget _buildsliverStaggeredGrid(
+          ImageViewModel viewModel, BuildContext context) =>
+      viewModel.isSearch
+          ? buildImagesField(viewModel.filteredImages, context)
+          : buildImagesField(viewModel.randomImages, context);
+
+  Widget buildImagesField(
+          List<ImageModel> filteredImages, BuildContext context) =>
+      SliverStaggeredGrid.countBuilder(
+        crossAxisCount: 2,
+        staggeredTileBuilder: (index) =>
+            staggeredTileBuilder(filteredImages[index], context),
+        itemBuilder: (context, index) =>
+            buildImageItemBuilder(filteredImages[index]),
+        itemCount: filteredImages.length,
+      );
 
   StaggeredTile staggeredTileBuilder(ImageModel image, context) {
     final aspectRatio = image.height / image.width;
     final columnWidth = MediaQuery.of(context).size.width / 2;
     return StaggeredTile.extent(1, aspectRatio * columnWidth);
   }
+
+  Widget buildImageItemBuilder(ImageModel image) => Card(
+        child: Image.network(image.urls.small),
+      );
 }

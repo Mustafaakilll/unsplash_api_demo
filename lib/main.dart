@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
       title: 'Unsplash Api Demo',
       theme: myTheme,
       home: ImageView(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

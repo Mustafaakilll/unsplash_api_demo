@@ -12,3 +12,11 @@ final ThemeData myTheme = ThemeData(
     backgroundColor: Color(0xFF5F627D),
   ),
 );
+
+InputDecoration buildInputDecoration(String labelText, String hintText) {
+  return InputDecoration(
+    labelText: labelText,
+    hintText: hintText,
+    border: UnderlineInputBorder(borderSide: BorderSide(width: 16)),
+  );
+}
