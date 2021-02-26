@@ -13,8 +13,9 @@ class WebService {
     var _uri = Uri.https(
         ApiConstants.BASE_URL, '/photos/random', {'count': '$imageCount'});
     var response = await http.get(_uri, headers: _header);
-    Iterable image = json.decode(response.body);
-    return image.map((e) => ImageModel.fromJson(e)).toList();
+    return imageListFromJson(response.body);
+    // Iterable image = json.decode(response.body);
+    // return image.map((e) => ImageModel.fromJson(e)).toList();
   }
 
   Future<List<ImageModel>> searchImage(String keyword,
@@ -25,5 +26,10 @@ class WebService {
         headers: _header);
     Iterable image = json.decode(response.body)['results'];
     return image.map((e) => ImageModel.fromJson(e)).toList();
+  }
+
+  static Future<String> getDownloadLinks(String link) async {
+    final response = await http.get(link, headers: _header);
+    return json.decode(response.body)['url'];
   }
 }

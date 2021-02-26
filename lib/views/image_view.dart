@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:unsplash_api_demo/utils/styles/style.dart';
+import 'package:unsplash_api_demo/views/widgets/image_tile_widget.dart';
 
 import '../models/image_model.dart';
 import '../utils/constants.dart';
@@ -120,7 +121,7 @@ class ImageView extends StatelessWidget {
     return StaggeredTile.extent(1, aspectRatio * columnWidth);
   }
 
-  Widget buildImageItemBuilder(ImageModel image) => Card(
-        child: Image.network(image.urls.small),
-      );
+  Widget buildImageItemBuilder(ImageModel image) {
+    return ImageTileWidget(image);
+  }
 }
