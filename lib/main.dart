@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'utils/styles/style.dart';
 import 'view_model/image_view_model.dart';
 import 'views/image_view.dart';

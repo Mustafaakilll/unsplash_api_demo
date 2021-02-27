@@ -4,9 +4,17 @@ import '../service/web_service.dart';
 
 class ImageViewModel extends ChangeNotifier {
   final WebService _service = WebService();
+  final TextEditingController _searchController = TextEditingController();
+
+  TextEditingController get searchController => _searchController;
 
   bool _isSearch = false;
   bool get isSearch => _isSearch;
+
+  set isSearch(bool value) {
+    _isSearch = value;
+    notifyListeners();
+  }
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -28,11 +36,6 @@ class ImageViewModel extends ChangeNotifier {
     _isLoading = true;
     _randomImage = await _service.getRandomImages();
     _isLoading = false;
-    notifyListeners();
-  }
-
-  void changeSearchState() {
-    _isSearch = !_isSearch;
     notifyListeners();
   }
 }

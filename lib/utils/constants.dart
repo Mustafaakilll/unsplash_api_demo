@@ -4,5 +4,5 @@ class ApiConstants {
 }
 
 class AppConstants {
-  static const TRENDS_TEXT = 'Trendler';
+  static const RANDOM_IMAGES_TEXT = 'Rastgele Resimler';
 }

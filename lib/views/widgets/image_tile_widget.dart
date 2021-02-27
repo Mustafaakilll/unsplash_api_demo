@@ -1,14 +1,11 @@
-import 'dart:typed_data';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:media_store/media_store.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:toast/toast.dart';
-import 'package:unsplash_api_demo/models/image_model.dart';
-import 'package:unsplash_api_demo/service/web_service.dart';
-import 'package:http/http.dart' as http;
+
+import '../../models/image_model.dart';
 
 class ImageTileWidget extends StatelessWidget {
   const ImageTileWidget(this.image, {Key key}) : super(key: key);
@@ -18,45 +15,40 @@ class ImageTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        ImageStreamCompleter;
         showDialog(
           context: context,
           builder: (context) {
             return GestureDetector(
-              child: CachedNetworkImage(
-                fit: BoxFit.fitHeight,
-                height: double.tryParse(image.height.toString()),
-                width: double.tryParse(image.width.toString()),
-                progressIndicatorBuilder: (context, url, downloadProgress) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: downloadProgress.progress,
-                    ),
-                  );
-                },
-                imageUrl: image.urls.full,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              child: showFullScreenImage(),
+              onTap: () => Navigator.pop(context),
               onLongPress: () async {
-                await downloadImage(context, image.links.download).then(
-                  (value) => Toast.show(
-                      value
-                          ? 'İndirme işlemi başarıyla tamamlandı'
-                          : 'Yazma izni alınamadı!',
-                      context),
-                );
+                await downloadImage(context, image.links.download)
+                    .then((value) => showToast(value, context));
                 Navigator.pop(context);
               },
             );
           },
         );
       },
-      child: Card(
-        color: Colors.grey[200],
-        shape: RoundedRectangleBorder(side: BorderSide.none),
-        child: buildCachedNetworkImage(),
+      child: buildImageCard(),
+    );
+  }
+
+  CachedNetworkImage showFullScreenImage() {
+    return CachedNetworkImage(
+      fit: BoxFit.fitHeight,
+      height: double.tryParse(image.height.toString()),
+      width: double.tryParse(image.width.toString()),
+      progressIndicatorBuilder: (context, url, downloadProgress) =>
+          buildImageProgressIndicator(downloadProgress),
+      imageUrl: image.urls.full,
+    );
+  }
+
+  Widget buildImageProgressIndicator(downloadProgress) {
+    return Center(
+      child: CircularProgressIndicator(
+        value: downloadProgress.progress,
       ),
     );
   }
@@ -72,6 +64,20 @@ class ImageTileWidget extends StatelessWidget {
     } else {
       return false;
     }
+  }
+
+  void showToast(value, context) {
+    return Toast.show(
+        value ? 'İndirme işlemi başarıyla tamamlandı' : 'Yazma izni alınamadı!',
+        context);
+  }
+
+  Widget buildImageCard() {
+    return Card(
+      color: Colors.grey[200],
+      shape: RoundedRectangleBorder(side: BorderSide.none),
+      child: buildCachedNetworkImage(),
+    );
   }
 
   Widget buildCachedNetworkImage() {
@@ -94,33 +100,3 @@ class ImageTileWidget extends StatelessWidget {
         ),
       );
 }
-
-// Widget buildCachedNetworkImage(BuildContext ctx) {
-//   return GestureDetector(
-//     onTap: () => showDialog(
-//       context: ctx,
-//       builder: (context) => Builder(
-//         builder: (context) => GestureDetector(
-//           onTap: () async {
-//             await downloadImage(context, '').then((result) => Toast.show(
-//                 result
-//                     ? 'İndirme işlemi başarıyla tamamlandı'
-//                     : 'Yazma izni alınamadı!',
-//                 ctx));
-
-//             Navigator.of(context).pop();
-//           },
-//           child: CachedNetworkImage(
-//             progressIndicatorBuilder: (context, url, downloadProgress) {
-//               return Center(
-//                   child: CircularProgressIndicator(
-//                 value: downloadProgress.progress,
-//               ));
-//             },
-//             imageUrl: '',
-//           ),
-//         ),
-//       ),
-//     ),
-//   );
-// }

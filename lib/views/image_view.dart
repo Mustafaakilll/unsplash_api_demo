@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
-import 'package:unsplash_api_demo/utils/styles/style.dart';
-import 'package:unsplash_api_demo/views/widgets/image_tile_widget.dart';
 
 import '../models/image_model.dart';
 import '../utils/constants.dart';
+import '../utils/styles/style.dart';
 import '../view_model/image_view_model.dart';
+import 'widgets/image_tile_widget.dart';
 
 class ImageView extends StatelessWidget {
   ImageView({Key key}) : super(key: key);
-  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -51,36 +50,37 @@ class ImageView extends StatelessWidget {
 
   Widget buildsearchTextFormField(ImageViewModel viewModel) => TextFormField(
         onFieldSubmitted: (value) => viewModel.searchImages(value),
-        controller: _searchController,
+        controller: viewModel.searchController,
         autofocus: true,
         decoration:
             buildInputDecoration('Arama', 'İngilizce yazınız!(Örn: Bicycle)'),
       );
 
   Widget buildTextField(context) => Text(
-        AppConstants.TRENDS_TEXT,
+        AppConstants.RANDOM_IMAGES_TEXT,
         style: Theme.of(context).appBarTheme.titleTextStyle,
       );
 
   Widget buildSearchIconButton(ImageViewModel viewModel) => IconButton(
         icon: Icon(Icons.search),
         onPressed: () {
-          viewModel.searchImages(_searchController.text);
+          viewModel.searchImages(viewModel.searchController.text);
         },
       );
 
   Widget buildCancelIconButton(ImageViewModel viewModel) => IconButton(
         icon: Icon(Icons.clear),
         onPressed: () {
-          viewModel.changeSearchState();
+          viewModel.isSearch = !viewModel.isSearch;
           viewModel.filteredImages.clear();
+          viewModel.searchController.clear();
         },
       );
 
   Widget buildGoSearchIconButton(ImageViewModel viewModel) => IconButton(
         icon: Icon(Icons.search),
         onPressed: () {
-          viewModel.changeSearchState();
+          viewModel.isSearch = !viewModel.isSearch;
         },
       );
 
