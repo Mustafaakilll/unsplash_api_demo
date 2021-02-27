@@ -1,6 +1,5 @@
 class ApiConstants {
-  static const ACCESS_KEY = <<'YOUR API ACCESS KEY HERE'>>;
-  static const SECRET_KEY = <<'Your API SECRET KEY HERE'>>;
+  static const ACCESS_KEY = 'YOUR ACCESS KEY';
   static const BASE_URL = 'api.unsplash.com';
 }
 

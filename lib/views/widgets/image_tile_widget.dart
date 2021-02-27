@@ -18,11 +18,27 @@ class ImageTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        ImageStreamCompleter;
         showDialog(
           context: context,
           builder: (context) {
             return GestureDetector(
-              child: PhotoView(imageProvider: NetworkImage(image.urls.small)),
+              child: CachedNetworkImage(
+                fit: BoxFit.fitHeight,
+                height: double.tryParse(image.height.toString()),
+                width: double.tryParse(image.width.toString()),
+                progressIndicatorBuilder: (context, url, downloadProgress) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: downloadProgress.progress,
+                    ),
+                  );
+                },
+                imageUrl: image.urls.full,
+              ),
+              onTap: () {
+                Navigator.pop(context);
+              },
               onLongPress: () async {
                 await downloadImage(context, image.links.download).then(
                   (value) => Toast.show(
@@ -49,12 +65,9 @@ class ImageTileWidget extends StatelessWidget {
     final storagePerm = await Permission.storage.request();
     if (storagePerm.isGranted) {
       Toast.show('İndirme işlemi başlatıldı lütfen bekleyiniz...', context);
-      final downloadLink = await WebService.getDownloadLinks(imageUrl);
-      final response = await http.get(downloadLink);
+      final response = await http.get(imageUrl);
       Toast.show('İndirme işlemi Devam Ediyor lütfen bekleyiniz...', context);
-      final result =
-          await MediaStore.saveImage(Uint8List.fromList(response.bodyBytes));
-      print(result);
+      await MediaStore.saveImage(response.bodyBytes);
       return true;
     } else {
       return false;
