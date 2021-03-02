@@ -19,22 +19,23 @@ class ImageViewModel extends ChangeNotifier {
   bool _isLoading = true;
   bool get isLoading => _isLoading;
 
-  List<ImageModel> _randomImage;
+  final List<ImageModel> _randomImage = [];
   List<ImageModel> get randomImages => _randomImage;
 
-  List<ImageModel> _filteredImages = [];
+  final List<ImageModel> _filteredImages = [];
   List<ImageModel> get filteredImages => _filteredImages;
 
-  Future<void> searchImages(keyword) async {
+  Future<void> searchImages(keyword, [_currentPage = 1]) async {
     _isLoading = true;
-    _filteredImages = await _service.searchImage(keyword);
+    _filteredImages
+        .addAll(await _service.searchImage(keyword, page: _currentPage));
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> getRandomImages([int imageCount]) async {
+  Future<void> getRandomImages([int imageCount = 25]) async {
     _isLoading = true;
-    _randomImage = await _service.getRandomImages();
+    _randomImage.addAll(await _service.getRandomImages(imageCount: imageCount));
     _isLoading = false;
     notifyListeners();
   }

@@ -11,10 +11,12 @@ class WebService {
   };
 
   Future<List<ImageModel>> getRandomImages({imageCount = 25}) async {
-    final _uri = Uri.https(
-        ApiConstants.BASE_URL, '/photos/random', {'count': '$imageCount'});
+    final _queryParams = {'count': '$imageCount'};
+    final _uri =
+        Uri.https(ApiConstants.BASE_URL, '/photos/random', _queryParams);
     final response = await http.get(_uri, headers: _header);
-    return imageListFromJson(response.body);
+    Iterable image = json.decode(response.body);
+    return image.map((e) => ImageModel.fromJson(e)).toList();
   }
 
   Future<List<ImageModel>> searchImage(String keyword,
@@ -27,7 +29,7 @@ class WebService {
     final _uri =
         Uri.https(ApiConstants.BASE_URL, '/search/photos', _queryParams);
     final response = await http.get('$_uri', headers: _header);
-    Iterable image = json.decode(response.body)['results'];
-    return image.map((e) => ImageModel.fromJson(e)).toList();
+    Iterable imageResults = json.decode(response.body)['results'];
+    return imageResults.map((e) => ImageModel.fromJson(e)).toList();
   }
 }

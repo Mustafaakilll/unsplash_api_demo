@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
+import 'package:unsplash_api_demo/models/image_model.dart';
 
-import '../models/image_model.dart';
 import '../utils/constants.dart';
 import '../utils/styles/style.dart';
 import '../view_model/image_view_model.dart';
-import 'widgets/image_tile_widget.dart';
+import 'widgets/sliver_staggered_grid_widget.dart';
 
 class ImageView extends StatelessWidget {
   ImageView({Key key}) : super(key: key);
+  final ScrollController _randomScrollController =
+      ScrollController(initialScrollOffset: 0);
+  // final ScrollController _searchScrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +19,7 @@ class ImageView extends StatelessWidget {
       builder: (BuildContext context, viewModel, Widget child) {
         return Scaffold(
           body: CustomScrollView(
+            controller: _randomScrollController,
             slivers: [
               _sliverAppBar(context, viewModel),
               _buildSliverPadding(viewModel, context),
@@ -49,7 +52,14 @@ class ImageView extends StatelessWidget {
       );
 
   Widget buildsearchTextFormField(ImageViewModel viewModel) => TextFormField(
-        onFieldSubmitted: (value) => viewModel.searchImages(value),
+        onFieldSubmitted: (value) {
+          if (viewModel.filteredImages.isEmpty) {
+            viewModel.searchImages(viewModel.searchController.text);
+          } else {
+            viewModel.filteredImages.clear();
+            viewModel.searchImages(viewModel.searchController.text);
+          }
+        },
         controller: viewModel.searchController,
         autofocus: true,
         decoration:
@@ -63,8 +73,13 @@ class ImageView extends StatelessWidget {
 
   Widget buildSearchIconButton(ImageViewModel viewModel) => IconButton(
         icon: Icon(Icons.search),
-        onPressed: () {
-          viewModel.searchImages(viewModel.searchController.text);
+        onPressed: () async {
+          if (viewModel.filteredImages.isEmpty) {
+            await viewModel.searchImages(viewModel.searchController.text);
+          } else {
+            viewModel.filteredImages.clear();
+            await viewModel.searchImages(viewModel.searchController.text);
+          }
         },
       );
 
@@ -99,29 +114,21 @@ class ImageView extends StatelessWidget {
       );
 
   Widget _buildsliverStaggeredGrid(
-          ImageViewModel viewModel, BuildContext context) =>
-      viewModel.isSearch
-          ? buildImagesField(viewModel.filteredImages, context)
-          : buildImagesField(viewModel.randomImages, context);
-
-  Widget buildImagesField(
-          List<ImageModel> filteredImages, BuildContext context) =>
-      SliverStaggeredGrid.countBuilder(
-        crossAxisCount: 2,
-        staggeredTileBuilder: (index) =>
-            staggeredTileBuilder(filteredImages[index], context),
-        itemBuilder: (context, index) =>
-            buildImageItemBuilder(filteredImages[index]),
-        itemCount: filteredImages.length,
-      );
-
-  StaggeredTile staggeredTileBuilder(ImageModel image, context) {
-    final aspectRatio = image.height / image.width;
-    final columnWidth = MediaQuery.of(context).size.width / 2;
-    return StaggeredTile.extent(1, aspectRatio * columnWidth);
+      ImageViewModel viewModel, BuildContext context) {
+    if (viewModel.isSearch) {
+      return buildImagesField(viewModel.filteredImages, viewModel);
+    } else {
+      return buildImagesField(viewModel.randomImages, viewModel);
+    }
   }
 
-  Widget buildImageItemBuilder(ImageModel image) {
-    return ImageTileWidget(image);
+  Widget buildImagesField(
+      List<ImageModel> imageList, ImageViewModel viewModel) {
+    _randomScrollController.addListener(() {
+      if ((_randomScrollController.position.maxScrollExtent -
+              _randomScrollController.offset) <=
+          100) viewModel.getRandomImages();
+    });
+    return SliverStaggeredGridWidget(imageList);
   }
 }
