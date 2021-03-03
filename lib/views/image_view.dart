@@ -9,8 +9,7 @@ import 'widgets/sliver_staggered_grid_widget.dart';
 
 class ImageView extends StatelessWidget {
   ImageView({Key key}) : super(key: key);
-  final ScrollController _randomScrollController =
-      ScrollController(initialScrollOffset: 0);
+  // final ScrollController _randomScrollController = ScrollController();
   // final ScrollController _searchScrollController = ScrollController();
 
   @override
@@ -19,7 +18,7 @@ class ImageView extends StatelessWidget {
       builder: (BuildContext context, viewModel, Widget child) {
         return Scaffold(
           body: CustomScrollView(
-            controller: _randomScrollController,
+            controller: viewModel.scrollController,
             slivers: [
               _sliverAppBar(context, viewModel),
               _buildSliverPadding(viewModel, context),
@@ -124,11 +123,7 @@ class ImageView extends StatelessWidget {
 
   Widget buildImagesField(
       List<ImageModel> imageList, ImageViewModel viewModel) {
-    _randomScrollController.addListener(() {
-      if ((_randomScrollController.position.maxScrollExtent -
-              _randomScrollController.offset) <=
-          100) viewModel.getRandomImages();
-    });
+    viewModel.loadNewImages();
     return SliverStaggeredGridWidget(imageList);
   }
 }

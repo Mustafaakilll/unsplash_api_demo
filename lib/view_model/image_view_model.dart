@@ -5,6 +5,9 @@ import '../service/web_service.dart';
 class ImageViewModel extends ChangeNotifier {
   final WebService _service = WebService();
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  ScrollController get scrollController => _scrollController;
 
   TextEditingController get searchController => _searchController;
 
@@ -37,6 +40,15 @@ class ImageViewModel extends ChangeNotifier {
     _isLoading = true;
     _randomImage.addAll(await _service.getRandomImages(imageCount: imageCount));
     _isLoading = false;
+    notifyListeners();
+  }
+
+  void loadNewImages() {
+    _scrollController.addListener(() {
+      if ((_scrollController.position.maxScrollExtent -
+              _scrollController.offset) <=
+          100) getRandomImages();
+    });
     notifyListeners();
   }
 }
