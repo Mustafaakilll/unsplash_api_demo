@@ -1,29 +1,3 @@
-class SearchImageModel {
-  int totalPages;
-  List<ImageModel> results;
-
-  SearchImageModel({this.totalPages, this.results});
-
-  SearchImageModel.fromJson(Map<String, dynamic> json) {
-    totalPages = json['total_pages'];
-    if (json['results'] != null) {
-      results = <ImageModel>[];
-      json['results'].forEach((v) {
-        results.add(ImageModel.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['total_pages'] = totalPages;
-    if (results != null) {
-      data['results'] = results.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
 class ImageModel {
   String id;
   String createdAt;

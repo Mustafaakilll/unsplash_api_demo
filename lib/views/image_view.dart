@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:unsplash_api_demo/models/image_model.dart';
 
 import '../utils/constants.dart';
 import '../utils/styles/style.dart';
@@ -9,8 +8,6 @@ import 'widgets/sliver_staggered_grid_widget.dart';
 
 class ImageView extends StatelessWidget {
   ImageView({Key key}) : super(key: key);
-  // final ScrollController _randomScrollController = ScrollController();
-  // final ScrollController _searchScrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +118,7 @@ class ImageView extends StatelessWidget {
     }
   }
 
-  Widget buildImagesField(
-      List<ImageModel> imageList, ImageViewModel viewModel) {
+  Widget buildImagesField(imageList, ImageViewModel viewModel) {
     viewModel.loadNewImages();
     return SliverStaggeredGridWidget(imageList);
   }
